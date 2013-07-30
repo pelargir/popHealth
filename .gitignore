@@ -1,5 +1,9 @@
 *.log
 *.sqlite3
+*.sublime-project
+*.sublime-workspace
+bundle-*.zip
+public/assets
 public/clinical_documents
 config/database.yml
 coverage.data
