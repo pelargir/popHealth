@@ -1,6 +1,23 @@
 GIT
-  remote: https://github.com/pophealth/quality-measure-engine.git
-  revision: a1c65e0599b198794762ae72eda1fc29bc360bab
+  remote: git://github.com/pelargir/health-data-standards.git
+  revision: b580413b80434ef5959b2f3d4751ebedd7d62f94
+  branch: medaxion
+  specs:
+    health-data-standards (3.2.6)
+      activesupport (~> 3.2.9)
+      builder (~> 3.0.0)
+      erubis (~> 2.7.0)
+      log4r (~> 1.1.10)
+      memoist (~> 0.9.0)
+      mongoid (~> 3.1.0)
+      nokogiri (~> 1.5.5)
+      rest-client (~> 1.6.7)
+      rubyzip
+      uuid (~> 2.3.5)
+
+GIT
+  remote: git://github.com/pophealth/quality-measure-engine.git
+  revision: 90afa5a37f6c181479946c39c589e6032d71d530
   branch: develop
   specs:
     quality-measure-engine (2.1.0)
@@ -10,22 +27,6 @@ GIT
       nokogiri (~> 1.5.5)
       rubyXL (~> 1.2.10)
       rubyzip (~> 0.9.9)
-
-GIT
-  remote: https://github.com/projectcypress/health-data-standards.git
-  revision: ef5045b91fc03fc48e9cedff1a31ff5402dd1a75
-  branch: develop
-  specs:
-    health-data-standards (3.0.6)
-      activesupport (~> 3.2.9)
-      builder (~> 3.0.0)
-      erubis (~> 2.7.0)
-      log4r (~> 1.1.10)
-      mongoid (~> 3.1.0)
-      nokogiri (~> 1.5.5)
-      rest-client (~> 1.6.7)
-      rubyzip
-      uuid (~> 2.3.5)
 
 GEM
   remote: http://rubygems.org/
@@ -119,20 +120,21 @@ GEM
       i18n (>= 0.4.0)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
+    memoist (0.9.1)
     metaclass (0.0.1)
     method_source (0.8.1)
-    mime-types (1.21)
+    mime-types (1.23)
     minitest (4.6.2)
     mocha (0.13.3)
       metaclass (~> 0.0.1)
-    mongoid (3.1.3)
+    mongoid (3.1.4)
       activemodel (~> 3.2)
-      moped (~> 1.4.2)
+      moped (~> 1.4)
       origin (~> 1.0)
       tzinfo (~> 0.3.22)
     moped (1.4.5)
-    multi_json (1.7.3)
-    nokogiri (1.5.9)
+    multi_json (1.7.7)
+    nokogiri (1.5.10)
     origin (1.1.0)
     orm_adapter (0.4.0)
     polyglot (0.3.3)
