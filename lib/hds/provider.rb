@@ -1,17 +1,17 @@
 class Provider
-  include Mongoid::Document
+
+  field :level, type: String
   
-  scope :alphabetical, order_by([:family_name, :asc], [:given_name, :asc])
-  scope :with_npi, where(:npi.ne => nil).or(:npi.ne => "")
-  scope :without_npi, any_of({npi: nil}, {npi: ""})
-  scope :by_npi, ->(npi) { where(npi: npi) }
+  embeds_many :cda_identifiers, class_name: "CDAIdentifier"
+
+  scope :alphabetical, ->{order_by([:family_name, :asc], [:given_name, :asc])}
   scope :can_merge_with, ->(prov) { prov.npi.blank? ? all_except(prov) : all_except(prov).without_npi }
   scope :all_except, ->(prov) { where(:_id.ne => prov.id) }
   scope :selected, ->(provider_ids) { any_in(:_id => provider_ids)}
   scope :selected_or_all, ->(provider_ids) { provider_ids.nil? || provider_ids.empty? ? Provider.all : Provider.selected(provider_ids) }
-   
+
   belongs_to :team
-  
+
   Specialties = {"100000000X" => "Behavioral Health and Social Service Providers",
                  "110000000X" => "Chiropractic Providers",
                  "120000000X" => "Dental Providers",
@@ -33,50 +33,38 @@ class Provider
                  "320000000X" => "Residential Treatment Facilities",
                  "330000000X" => "Suppliers (including Pharmacies and Durable Medical Equipment)",
                  "360000000X" => "Physician Assistants and Advanced Practice Nursing Providers"}
-  
+
   # alias :full_name :name
 
   def full_name
     [family_name, given_name].compact.join(", ")
   end
-  
+
   def specialty_name
     Specialties[specialty]
   end
-  
+
   def merge_eligible
     Provider.can_merge_with(self).alphabetical
   end
-  
+
   def to_json(options={})
     super(options)
   end
-  
-  
-  def self.merge_or_build(attributes)
-    if attributes[:npi]
-      provider = Provider.by_npi(attributes[:npi]).first
+
+  def self.resolve_provider(provider_hash)
+    catch_all_provider_hash = { :title => "",
+                                :given_name => "",
+                                :family_name=> "",
+                                :specialty => "",
+                                :cda_identifiers => [{root: APP_CONFIG['orphan_provider']['root'], extension:APP_CONFIG['orphan_provider']['extension']}]
+                              }
+    provider ||= Provider.in("cda_identifiers.root" => APP_CONFIG['orphan_provider']['root']).and.in("cda_identifiers.extension" => APP_CONFIG['orphan_provider']['extension']).first
+    if provider.nil?
+      provider = Provider.create(catch_all_provider_hash)
+      Provider.root.children << provider
     end
-    
-    if provider
-      provider.merge_provider(attributes)
-    else
-      provider = Provider.new(attributes)
-    end
-    
-    provider
-  end
-  
-  def merge_provider(provider)
-    return false if !self.npi.blank? && !provider[:npi].blank? #cannot merge providers with different NPIs
-    self.attributes = provider.attributes.merge(attributes.reject { |k,v| v.blank? })
-    provider.records.each { |record| self.records << record  }
-    true
-  end
-  
-  def merge_provider!(provider)
-    merge_provider(provider)
-    save!
+    return provider
   end
 
 end

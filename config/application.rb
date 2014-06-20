@@ -3,7 +3,7 @@ require File.expand_path('../boot', __FILE__)
 #require 'rails/all'
 require "action_controller/railtie"
 require "action_mailer/railtie"
-require "active_resource/railtie"
+#require "active_resource/railtie"
 require "rails/test_unit/railtie"
 require "sprockets/railtie"
 
@@ -53,7 +53,7 @@ module PopHealth
     # add devise views
 #    config.paths["app/views/devise"]
     config.paths["app/views"] << "app/views/devise"
-    
+
     require 'will_paginate/array'
   end
 end

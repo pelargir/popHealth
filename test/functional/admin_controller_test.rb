@@ -2,22 +2,24 @@ require 'test_helper'
 include Devise::TestHelpers
 
 class AdminControllerTest < ActionController::TestCase
-  
-  setup  do 
-    
-    dump_database
-    
-    @admin = Factory(:admin)
-    @user = Factory(:user)
-    @user2 = Factory(:user)
-    @unapproved_user = Factory(:unapproved_user)
 
-    @admin2 = Factory(:admin)
+  setup  do
+
+    dump_database
+
+    collection_fixtures 'users'
+
+    @admin = User.where({email: 'admin@test.com'}).first
+    @user = User.where({email: 'noadmin@test.com'}).first
+    @user2 = User.where({email: 'noadmin2@test.com'}).first
+    @unapproved_user = User.where({email: 'unapproved@test.com'}).first
+
+    @admin2 = User.where({email: 'admin2@test.com'}).first
 
     @user_ids = [] << @user.id
-    
+
   end
-  
+
   test "should get user list if admin" do
     sign_in @admin
     get :users
@@ -31,7 +33,7 @@ class AdminControllerTest < ActionController::TestCase
     get :users
     users = assigns[:users]
     assert_nil users
-    assert_response :redirect
+    assert_response 403
   end
 
   test "promote user should make user admin" do
@@ -58,7 +60,7 @@ class AdminControllerTest < ActionController::TestCase
     post :promote, username: @user.username, role: 'admin'
     @user = User.find(@user.id)
     assert !@user.admin?
-    assert_response :redirect
+    assert_response 403
   end
 
   test "should not be able to demote if not admin" do
@@ -67,7 +69,7 @@ class AdminControllerTest < ActionController::TestCase
     post :demote, username: @admin2.username, role: 'admin'
     @admin2 = User.find(@admin2.id)
     assert @admin2.admin?
-    assert_response :redirect
+    assert_response 403
   end
 
   test "disable user should mark the user disabled" do
@@ -89,13 +91,13 @@ class AdminControllerTest < ActionController::TestCase
     assert !@user2.disabled
     assert_response :success
   end
-  
+
   test "disable user should not disable the user if not admin" do
     sign_in @user
     post :disable, username: @user2.username, disabled: 1
     @user2.reload
     assert !@user2.disabled
-    assert_response :redirect
+    assert_response 403
   end
 
   test "enable user should not enable the user if not admin" do
@@ -107,7 +109,7 @@ class AdminControllerTest < ActionController::TestCase
     post :disable, username: @user2.username, disabled: 0
     @user2.reload
     assert @user2.disabled
-    assert_response :redirect
+    assert_response 403
   end
 
   test "approve user should approve the user" do
@@ -125,9 +127,8 @@ class AdminControllerTest < ActionController::TestCase
     post :approve, username: @unapproved_user.username
     @unapproved_user = User.find(@unapproved_user.id)
     assert !@unapproved_user.approved?
-    assert_response :redirect
+    assert_response 403
   end
-
 
   test "disable invalid user should not freak out" do
     sign_in @admin
@@ -146,5 +147,5 @@ class AdminControllerTest < ActionController::TestCase
     post :approve, username: "crapusername"
     assert_response :success
   end
-  
+
 end

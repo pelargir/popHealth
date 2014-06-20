@@ -8,6 +8,10 @@ require 'rake'
 # require 'rspec/core/rake_task'
 # require 'resque/tasks'
 
+# This fixes errors in the delayed job where the log file will not be written to 
+# until the delayed job exits.
+STDOUT.sync = true
+
 PopHealth::Application.load_tasks
 
 ENV['DB_NAME'] = "pophealth-#{Rails.env}"
@@ -18,7 +22,20 @@ Rake::TestTask.new(:test_unit) do |t|
   t.verbose = true
 end
 
-
-task :test => [:test_unit] do
+task :test_all => ["jasmine:ci", :test_unit] do
   system("open coverage/index.html")
+end
+
+Rake::Task["test"].clear
+task 'test' do
+  puts "Please run rake test_all in order to run the test suite."
+end
+
+begin
+  require 'jasmine'
+  load 'jasmine/tasks/jasmine.rake'
+rescue LoadError
+  task :jasmine do
+    abort "Jasmine is not available. In order to run jasmine, you must: (sudo) gem install jasmine"
+  end
 end

@@ -1,7 +1,11 @@
 language: ruby
 rvm:
   - 1.9.3
-script: bundle exec rake test
+  - 2.0.0
+  - 2.1.1
+env:
+  - rvmsudo_secure_path=1
+script: rvmsudo bundle exec rake test_all
 services:
   - mongodb
 notifications:
@@ -9,6 +13,7 @@ notifications:
     recipients:
       - healthcare-ci@googlegroups.com
     on_failure: change
+bundler_args: --without test develop
 
 branches: 
   only:

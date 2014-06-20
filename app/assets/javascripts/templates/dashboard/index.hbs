@@ -1,0 +1,91 @@
+<div class="sidebar" id="filters">
+  <h3>Filters</h3>
+
+  <p class="input-group">
+    <input type="text" class="form-control category-measure-search" placeholder="measure or group title">
+    <span class="input-group-btn"><a class="btn btn-default clear-search" type="button">&times;</a></span>
+  </p>
+
+  <div class="panel-group" id="measureSelectors">
+    {{#collection item-context=categoryFilterContext}}
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h4 class="panel-title">
+            <div class="selection-pull-out">
+              <span class="measure-count">{{measure_count}}</span>
+              <i class="glyphicon glyphicon-chevron-right"></i>
+            </div>
+            <a class="accordion-toggle" data-toggle="collapse" data-parent="#measureSelectors" href="#category{{@cid}}">
+              {{category}}
+            </a>
+          </div>
+        </div>
+        <div id="category{{@cid}}" class="panel-collapse collapse">
+          <div class="panel-body measureItemList">
+            <div class="checkbox">
+              <label>
+                  <input type="checkbox" class="all"{{#if selected}} checked{{/if}}>
+                  Select All
+              </label>
+            </div>
+            {{#collection measures item-context=../measureFilterContext}}
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox" class="individual"{{#if selected}} checked{{/if}}>
+                  {{cms_id}}/{{nqf_id}} - {{name}}
+                  {{!-- <%= check_box_tag :measure_id, measure["id"], is_selected?(measure['id'], current_user.selected_measures), {id: nil, 'data-measure-id' => measure['id'], 'data-sub-measures' => measure['sub_ids'].join(',')} %><%= measure['name'] %> --}}
+                </label>
+              </div>
+            {{/collection}}
+          </div>
+        </div>
+      </div>
+    {{/collection}}
+  </div>
+</div>
+
+<div class="main">
+  <div class="main-heading">
+    <h1 class="title">Measures</h1>
+    <a href="/api/reports/qrda_cat3.xml{{#if effective_date}}?effective_date={{effective_date}}{{/if}}{{#if provider_id}}&provider_id={{provider_id}}{{/if}}" class="export-btn"><i class="glyphicon glyphicon-download-alt"></i> Export</a>
+  </div>
+  {{#collection selectedCategories}}
+    <div class="category" style="">
+      <h2 class="category-title">{{category}}</h2>
+      <div class="category-percent">
+        <div class="title-circle">%</div>
+      </div>
+      <div class="category-fraction">Numerator/Denominator</div>
+    </div>
+  </div>
+
+    {{#collection measures}}
+      {{#collection submeasures item-view="DashboardSubmeasureView"}}
+        <div class="measure">
+          <div class="measure-title-id">
+            <div class="measure-identifier">
+              {{#if isPrimary}}
+                {{#if cms_id}}
+                  <div class="cms-cms">CMS</div>
+                  <div class="cms-number">{{cms_number}}</div>
+                  <div class="cms-version">v{{cms_version}}</div>
+                {{/if}}
+              {{/if}}
+            </div>
+            <div class="measure-title" data-measure-sub="{{sub_id}}">
+              {{#if isPrimary}}
+                <a href="#measures/{{id}}{{#if sub_id}}/{{sub_id}}{{/if}}" data-placement="bottom" data-content="{{description}}" data-trigger="hover focus" rel="popover">{{name}}</a>
+              {{/if}}
+            </div>
+          </div>
+          <div class="measure-subtitle">
+            {{#if short_subtitle}}
+              <a href="#measures/{{id}}/{{sub_id}}">{{short_subtitle}}</a>
+            {{/if}}
+          </div>
+          {{view "ResultsView" model=query id=id sub_id=sub_id episode_of_care=episode_of_care provider_id=../../../provider_id}}
+        </div>
+      {{/collection}}
+    {{/collection}}
+  {{/collection}}
+</div>

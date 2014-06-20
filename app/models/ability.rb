@@ -22,21 +22,30 @@ class Ability
 
     if user.admin?
       can :manage, :all
+      # can [:create,:delete], Record
+      # can :manage, Provider
+      # can [:read, :recalculate,:create, :deleted], QME::QualityReport
+      # can [:create,:delete], HealthDataStandards::CQM::Measure
     elsif user.staff_role?
       can :read, HealthDataStandards::CQM::Measure
       can :read, Record
       can :manage, Provider
       can :manage, :providers
-      can :manage, Team
       can :manage, User, id: user.id
       cannot :manage, User unless APP_CONFIG['allow_user_update']
+      can [:read, :delete, :recalculate,:create] , QME::QualityReport
     elsif user.id
       can :read, Record do |patient|
         patient.providers.map(&:npi).include?(user.npi)
       end
+      can [:read,:delete, :recalculate, :create], QME::QualityReport do |qr|
+         provider = Provider.by_npi(user.npi).first
+         provider ? (qr.filters || {})["providers"].include?(provider.id) : false
+      end
       can :read, HealthDataStandards::CQM::Measure
-      can :read, Provider, npi: user.npi
-      can :manage, Team
+      can :read, Provider do |pv|
+        user.npi && (pv.npi == user.npi)
+      end
       can :manage, User, id: user.id
       cannot :manage, User unless APP_CONFIG['allow_user_update']
     end
